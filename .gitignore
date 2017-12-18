@@ -59,10 +59,19 @@ target/
 # PyCharm
 .idea
 
+# Jupyter
+.ipynb_checkpoints/
+
 # setuptools-scm
 zarr/version.py
 
-# test data
-*.zarr
+# emacs
 *~
-*.zip
+
+# test data
+#*.zarr
+#*.zip
+#example*
+#doesnotexist
+#test_sync*
+data/*

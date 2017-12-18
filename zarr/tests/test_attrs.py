@@ -9,26 +9,26 @@ from nose.tools import eq_ as eq, assert_raises
 
 from zarr.attrs import Attributes
 from zarr.compat import binary_type, text_type
-from zarr.errors import ReadOnlyError
+from zarr.errors import PermissionError
 
 
 class TestAttributes(unittest.TestCase):
 
-    def init_attributes(self, store, readonly=False):
-        return Attributes(store, readonly=readonly)
+    def init_attributes(self, store, read_only=False):
+        return Attributes(store, key='attrs', read_only=read_only)
 
     def test_storage(self):
 
         store = dict()
-        a = self.init_attributes(store)
-        assert 'attrs' in store
-        assert isinstance(store['attrs'], binary_type)
-        d = json.loads(text_type(store['attrs'], 'ascii'))
-        eq(dict(), d)
+        a = Attributes(store=store, key='attrs')
+        assert 'foo' not in a
+        assert 'bar' not in a
+        eq(dict(), a.asdict())
 
         a['foo'] = 'bar'
         a['baz'] = 42
-
+        assert 'attrs' in store
+        assert isinstance(store['attrs'], binary_type)
         d = json.loads(text_type(store['attrs'], 'ascii'))
         eq(dict(foo='bar', baz=42), d)
 
@@ -74,18 +74,31 @@ class TestAttributes(unittest.TestCase):
         eq({'bar', 42}, set(a.values()))
         eq({('foo', 'bar'), ('baz', 42)}, set(a.items()))
 
-    def test_readonly(self):
-
+    def test_read_only(self):
         store = dict()
+        a = self.init_attributes(store, read_only=True)
         store['attrs'] = json.dumps(dict(foo='bar', baz=42)).encode('ascii')
-        a = self.init_attributes(store, readonly=True)
         eq(a['foo'], 'bar')
         eq(a['baz'], 42)
-        with assert_raises(ReadOnlyError):
+        with assert_raises(PermissionError):
             a['foo'] = 'quux'
-        with assert_raises(ReadOnlyError):
+        with assert_raises(PermissionError):
             del a['foo']
-        with assert_raises(ReadOnlyError):
+        with assert_raises(PermissionError):
             a.update(foo='quux')
-        with assert_raises(ReadOnlyError):
-            a.put(dict())
+
+    def test_key_completions(self):
+        a = self.init_attributes(dict())
+        d = a._ipython_key_completions_()
+        assert 'foo' not in d
+        assert '123' not in d
+        assert 'baz' not in d
+        assert 'asdf;' not in d
+        a['foo'] = 42
+        a['123'] = 4.2
+        a['asdf;'] = 'ghjkl;'
+        d = a._ipython_key_completions_()
+        assert 'foo' in d
+        assert '123' in d
+        assert 'asdf;' in d
+        assert 'baz' not in d

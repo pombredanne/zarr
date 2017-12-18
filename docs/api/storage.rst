@@ -1,12 +1,26 @@
 Storage (``zarr.storage``)
 ==========================
-.. module:: zarr.storage
+.. automodule:: zarr.storage
 
-This module contains a single :class:`DirectoryStore` class providing
-a ``MutableMapping`` interface to a directory on the file
-system. However, note that any object implementing the
-``MutableMapping`` interface can be used as a Zarr array store.
-
-.. autofunction:: init_store
-
+.. autoclass:: DictStore
 .. autoclass:: DirectoryStore
+.. autoclass:: TempStore
+.. autoclass:: NestedDirectoryStore
+.. autoclass:: ZipStore
+
+    .. automethod:: close
+    .. automethod:: flush
+
+.. autoclass:: DBMStore
+
+    .. automethod:: close
+    .. automethod:: flush
+
+.. autoclass:: LMDBStore
+
+    .. automethod:: close
+    .. automethod:: flush
+
+.. autofunction:: init_array
+.. autofunction:: init_group
+.. autofunction:: migrate_1to2

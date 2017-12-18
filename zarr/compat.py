@@ -7,20 +7,18 @@ import sys
 PY2 = sys.version_info[0] == 2
 
 
-if PY2:  # pragma: no cover
-
-    def itervalues(d, **kw):
-        return d.itervalues(**kw)
+if PY2:  # pragma: py3 no cover
 
     text_type = unicode
     binary_type = str
-    integer_types = (int, long)
+    reduce = reduce
 
-else:
+    class PermissionError(Exception):
+        pass
 
-    def itervalues(d, **kw):
-        return iter(d.values(**kw))
+else:  # pragma: py2 no cover
 
     text_type = str
     binary_type = bytes
-    integer_types = int,
+    from functools import reduce
+    PermissionError = PermissionError

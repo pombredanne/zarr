@@ -1,15 +1,28 @@
 language: python
 
+branches:
+  only:
+    - master
+
+sudo: false
+
+addons:
+  apt:
+    packages:
+    - libdb-dev
+
 python:
   - 2.7
   - 3.4
   - 3.5
+  - 3.6
 
 install:
-  - pip install -U tox-travis
-  - pip install -U pip setuptools setuptools_scm wheel
-  - pip install -U nose -rrequirements.txt
-  - python setup.py build_ext --inplace
+  - pip install -U pip setuptools wheel
+  - pip install -U tox-travis coveralls
 
 script:
   - tox
+
+after_success:
+  - coveralls
